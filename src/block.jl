@@ -46,19 +46,19 @@ validity of `times` & `values`.
     with functions that accept blocks (e.g. [`TimeDag.run_node!`](@ref)), you must not
     modify `times` or `values` members.
 """
-struct Block{T,VTimes<:AbstractVector{DateTime},VValues<:AbstractVector{T}}
+struct Block{T,D<:AbstractDateTime,VTimes<:AbstractVector{D},VValues<:AbstractVector{T}}
     times::VTimes
     values::VValues
 
     function Block(
         ::UncheckedConstruction, times::VTimes, values::VValues
-    ) where {T,VTimes<:AbstractVector{DateTime},VValues<:AbstractVector{T}}
-        return new{T,VTimes,VValues}(times, values)
+    ) where {T,D<:AbstractDateTime,VTimes<:AbstractVector{D},VValues<:AbstractVector{T}}
+        return new{T,D,VTimes,VValues}(times, values)
     end
 
     function Block(
         times::VTimes, values::VValues
-    ) where {T,VTimes<:AbstractVector{DateTime},VValues<:AbstractVector{T}}
+    ) where {T,D<:AbstractDateTime,VTimes<:AbstractVector{D},VValues<:AbstractVector{T}}
         if length(times) != length(values)
             throw(
                 ArgumentError(
@@ -74,15 +74,16 @@ struct Block{T,VTimes<:AbstractVector{DateTime},VValues<:AbstractVector{T}}
         # TODO
         #   -> How make times & values immutable? Subclass of AbstractVector that doesn't
         #       implement setindex! ?
-        return new{T,VTimes,VValues}(times, values)
+        return new{T,D,VTimes,VValues}(times, values)
     end
 end
 
 Block{T}() where {T} = Block(unchecked, DateTime[], T[])
+Block{T,D}() where {T,D} = Block(unchecked, D[], T[])
 
 function Block(
-    knots::Union{AbstractVector{Tuple{DateTime,T}},AbstractVector{Pair{DateTime,T}}}
-) where {T}
+    knots::Union{AbstractVector{Tuple{D,T}},AbstractVector{Pair{D,T}}}
+) where {T,D}
     n = length(knots)
     times = _allocate_times(n)
     values = _allocate_values(T, n)

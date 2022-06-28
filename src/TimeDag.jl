@@ -5,6 +5,7 @@ using AssociativeWindowAggregation
 using Bijections
 using DataStructures
 using Dates
+import Dates: AbstractDateTime
 using LightGraphs
 using LinearAlgebra
 using PrettyTables
